@@ -1,0 +1,42 @@
+# Gym kiosk: the wall-mounted iPad app for openGym.
+#
+# One container. It serves the iPad app, keeps each person's openGym pairing token (the iPad
+# never holds one), relays reps from the rep sensor, and speaks through phonon on Ollama.
+# It joins openGym's own network and talks to the `api` and `web` containers by name, so
+# openGym itself needs no change.
+#
+#   docker compose up -d --build
+name: gym-kiosk
+
+services:
+  kiosk:
+    image: gym-kiosk:local
+    build:
+      context: .
+      # openGym's pure training helpers (frontend/src/lib), built into the kiosk unchanged, so
+      # the kiosk starts and finishes a workout exactly the way openGym does.
+      additional_contexts:
+        opengym: ../opengym/frontend/src/lib
+    pull_policy: build
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - PORT=8090
+      - DATA_DIR=/data
+      - OPENGYM_API=${OPENGYM_API:-http://api:3000}
+      - OPENGYM_WEB=${OPENGYM_WEB:-http://web:80}
+      - TTS_URL=${TTS_URL:-http://host.docker.internal:11434}
+      - TTS_MODEL=${TTS_MODEL:-phonon}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./data:/data   # profiles.json (pairing tokens) and the speech cache
+    ports:
+      - "${KIOSK_PORT:-8090}:8090"
+    networks:
+      - opengym
+
+networks:
+  opengym:
+    name: opengym_default
+    external: true

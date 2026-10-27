@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Gym" />
+    <meta name="theme-color" content="#0d0f12" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-180.png" />
+    <title>Gym Kiosk</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!--
+      Plain ES5 on purpose: it has to run on a Safari too old for the app itself.
+      1. Stand-ins for the three newer built-ins the app and openGym's code use (Safari 15.4+).
+         The data they clone is plain JSON from openGym, so a JSON copy is exact.
+      2. A wall iPad has no developer console: an error that stops the app is shown on screen
+         and sent to the kiosk server's log, with the browser version, instead of a black screen.
+    -->
+    <script>
+      (function () {
+        function define(obj, name, fn) { if (!obj[name]) Object.defineProperty(obj, name, { value: fn, configurable: true, writable: true }) }
+        function at(i) { i = Math.trunc(i) || 0; if (i < 0) i += this.length; return this[i] }
+        define(Array.prototype, 'at', at)
+        define(String.prototype, 'at', at)
+        define(Object, 'hasOwn', function (o, k) { return Object.prototype.hasOwnProperty.call(o, k) })
+        if (typeof window.structuredClone !== 'function') window.structuredClone = function (v) { return v === undefined ? v : JSON.parse(JSON.stringify(v)) }
+
+        var shown = false
+        function report(msg) {
+          msg = String(msg || 'Unknown error').slice(0, 2000)
+          try {
+            var x = new XMLHttpRequest()
+            x.open('POST', '/client-error')
+            x.setRequestHeader('Content-Type', 'application/json')
+            x.send(JSON.stringify({ message: msg, ua: navigator.userAgent, path: location.pathname }))
+          } catch (e) { /* nothing more to do */ }
+          if (shown) return
+          shown = true
+          var box = document.createElement('div')
+          box.setAttribute('style', 'position:fixed;top:0;left:0;right:0;bottom:0;padding:32px;overflow:auto;z-index:99;background:#0d0f12;color:#f2f4f7;font:18px -apple-system,system-ui,sans-serif')
+          box.innerHTML = '<h2 style="margin:0 0 12px">The kiosk hit an error</h2><p style="color:#9aa4b2;margin:0 0 12px">It has been sent to the kiosk server’s log. Details:</p>'
+          var pre = document.createElement('pre')
+          pre.setAttribute('style', 'white-space:pre-wrap;color:#ff6b6b;font-size:15px')
+          pre.textContent = msg + '\n\n' + navigator.userAgent
+          box.appendChild(pre)
+          var btn = document.createElement('button')
+          btn.textContent = 'Reload'
+          btn.setAttribute('style', 'font:inherit;font-weight:600;padding:14px 28px;border:0;border-radius:14px;background:#c6f432;color:#11140a;margin-top:16px')
+          btn.onclick = function () { location.reload() }
+          box.appendChild(btn)
+          ;(document.body || document.documentElement).appendChild(box)
+        }
+        window.addEventListener('error', function (e) {
+          var t = e.target
+          // A picture or video that fails to load is not fatal; a script that fails to load is.
+          if (t && t !== window && t.tagName && t.tagName !== 'SCRIPT') return
+          report((e.error && e.error.stack) || e.message || ('Could not load ' + (t && t.src)))
+        }, true)
+        setTimeout(function () {
+          var root = document.getElementById('root')
+          if (root && !root.firstChild) report('The app did not start: nothing appeared after 10 seconds.')
+        }, 10000)
+      })()
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

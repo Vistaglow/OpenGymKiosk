@@ -1,0 +1,209 @@
+/* A wall display read from a bench: dark, high contrast, big type, big targets. */
+:root {
+  --bg: #0d0f12;
+  --panel: #161a20;
+  --panel-2: #1e232b;
+  --line: #2a313b;
+  --text: #f2f4f7;
+  --muted: #9aa4b2;
+  --accent: #c6f432;
+  --accent-ink: #11140a;
+  --danger: #ff6b6b;
+  --ok: #5ee08a;
+  --radius: 20px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+h1, h2, h3 { margin: 0; line-height: 1.15; }
+h1 { font-size: 30px; }
+h2 { font-size: 26px; }
+h3 { font-size: 22px; }
+p { margin: 0 0 12px; }
+code { background: var(--panel-2); padding: 2px 8px; border-radius: 8px; user-select: all; -webkit-user-select: all; }
+.muted { color: var(--muted); }
+.small { font-size: 15px; }
+.ok { color: var(--ok); }
+.err { color: var(--danger); }
+
+/* 100% first: older iPad Safari has no dvh. */
+.app, .screen, .workout { height: 100%; height: 100dvh; display: flex; flex-direction: column; }
+.screen { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.center { display: flex; align-items: center; justify-content: center; }
+.column { flex-direction: column; }
+.gap { gap: 18px; }
+.grow { flex: 1; }
+.scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+
+.bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 20px 28px; padding-top: max(20px, env(safe-area-inset-top));
+  border-bottom: 1px solid var(--line);
+}
+.bar-title { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.bar-title.column { flex-direction: column; align-items: center; gap: 2px; }
+.bar-title h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-right { display: flex; align-items: center; gap: 12px; }
+
+.btn {
+  font: inherit; font-weight: 600; color: var(--text);
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px;
+  padding: 10px 18px; min-height: 48px; cursor: pointer;
+  transition: transform .06s ease, background .15s ease;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .45; }
+/* Lime is each screen's main action; the other colours say what kind of button it is. */
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.ghost { background: var(--panel-2); border-color: #3a434f; }
+.btn.blue { background: #1d3b75; border-color: #4a7ff0; color: #e6eeff; }     /* reps, time */
+.btn.amber { background: #5b3b0c; border-color: #f0a03a; color: #fff0d6; }    /* weight */
+.btn.violet { background: #3b2470; border-color: #9466f5; color: #f1e9ff; }   /* try / preview */
+.btn.danger { background: #4d1b1f; border-color: var(--danger); color: #ffdcdc; }
+.btn.big { font-size: 22px; padding: 16px 28px; min-height: 64px; border-radius: 18px; }
+.btn.wide { width: 100%; }
+.huge-btn { font-size: 30px; padding: 24px 48px; border-radius: 22px; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+.card.narrow { max-width: 560px; text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.badge { background: var(--panel-2); color: var(--ok); border-radius: 999px; padding: 4px 12px; font-size: 15px; font-weight: 600; }
+.dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--line); vertical-align: middle; }
+.dot.on { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+.spinner { width: 54px; height: 54px; border-radius: 50%; border: 5px solid var(--line); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* profiles */
+.tiles { flex: 1; display: flex; flex-wrap: wrap; gap: 24px; padding: 32px; justify-content: center; align-content: center; overflow-y: auto; }
+.tile {
+  width: 240px;
+  font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 28px;
+  padding: 32px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: pointer;
+}
+.tile:active { transform: scale(.97); background: var(--panel-2); }
+.tile-name { font-size: 26px; font-weight: 700; }
+.avatar {
+  --hue: 78;
+  display: grid; place-items: center; border-radius: 50%; font-weight: 800;
+  background: hsl(var(--hue) 70% 55%); color: hsl(var(--hue) 60% 12%);
+}
+.avatar.lg { width: 120px; height: 120px; font-size: 56px; }
+.avatar.sm { width: 48px; height: 48px; font-size: 22px; flex: none; }
+
+/* today */
+.today { padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 18px; }
+.section { margin-top: 8px; }
+.routines { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+.routines.small { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.routine { display: flex; flex-direction: column; gap: 14px; }
+.routine.featured { border-color: var(--accent); }
+.routine-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.ex-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.ex-list li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.resume { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; border-color: var(--accent); }
+
+/* workout */
+.workout-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 280px 1fr; }
+.rail { border-right: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.rail-item {
+  font: inherit; text-align: left; color: var(--text); background: transparent; border: 1px solid transparent;
+  border-radius: 14px; padding: 12px 14px; cursor: pointer;
+}
+.rail-item.current { background: var(--panel); border-color: var(--accent); }
+.rail-item.finished { opacity: .55; }
+.rail-name { font-weight: 600; margin-bottom: 8px; }
+.pips { display: flex; gap: 6px; flex-wrap: wrap; }
+.pip { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--muted); }
+.pip.warm { border-style: dashed; }
+.pip.done { background: var(--accent); border-color: var(--accent); }
+
+.stage { min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 16px 24px; }
+.set-view { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; }
+.set-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.set-head h2 { font-size: 30px; }
+.set-main { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.media { background: #fff; border-radius: var(--radius); overflow: hidden; display: grid; place-items: center; min-height: 0; }
+.media video { width: 100%; height: 100%; object-fit: contain; }
+.media-empty { color: #555; }
+.counter-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 0; }
+/* Sized in vh both ways: older Safari has no aspect-ratio. */
+.counter { position: relative; width: 38vh; height: 38vh; max-width: 100%; max-height: 100%; }
+.counter svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--panel-2); stroke-width: 16; }
+.ring { fill: none; stroke: var(--accent); stroke-width: 16; stroke-linecap: round; transition: stroke-dashoffset .25s ease; }
+.counter.hit .ring { stroke: var(--ok); }
+.counter-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.count { font-size: clamp(70px, 14vh, 150px); font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.target { font-size: 26px; color: var(--muted); }
+.status { font-size: 22px; color: var(--muted); text-align: center; min-height: 30px; }
+.timed { text-align: center; }
+.huge { font-size: 96px; }
+.controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.stepper { display: flex; gap: 8px; align-items: center; }
+.weight-value { min-width: 116px; text-align: center; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.rest .countdown { font-size: clamp(110px, 22vh, 220px); font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; color: var(--accent); }
+.rest .next { font-size: 24px; text-align: center; }
+
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .6); display: grid; place-items: center; z-index: 10; }
+.sheet { background: var(--panel); border: 1px solid var(--line); border-radius: 24px; padding: 28px; max-width: 640px; width: calc(100% - 48px); display: flex; flex-direction: column; gap: 16px; }
+
+/* summary */
+.summary { display: flex; flex-direction: column; align-items: center; gap: 16px; min-width: min(560px, 100% - 48px); text-align: center; }
+.stats { display: flex; gap: 40px; margin: 8px 0; }
+.stat { font-size: 44px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.prs { display: flex; flex-direction: column; gap: 8px; }
+.pr { background: var(--panel-2); border-radius: 14px; padding: 10px 16px; font-size: 20px; }
+
+/* setup */
+.setup { padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 18px; max-width: 980px; width: 100%; margin: 0 auto; }
+.setup .card { display: flex; flex-direction: column; gap: 14px; }
+.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+.code {
+  font: 700 30px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 6px; text-transform: uppercase;
+  background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; width: 300px;
+  -webkit-user-select: text; user-select: text;
+}
+.device-code { font: 800 56px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 4px; color: var(--accent); margin-right: 18px; }
+.person { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid var(--line); }
+.person-name { font-weight: 700; font-size: 22px; flex: 1; min-width: 120px; }
+select { font: inherit; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; min-height: 48px; max-width: 300px; }
+.switch { display: flex; gap: 12px; align-items: center; }
+.switch input { width: 26px; height: 26px; accent-color: var(--accent); }
+
+/* short screens (an iPad mini in landscape is 768 tall): tighter bars and buttons */
+@media (max-height: 820px) {
+  .bar { padding-top: max(12px, env(safe-area-inset-top)); padding-bottom: 12px; }
+  .bar h1 { font-size: 26px; }
+  .btn.big { font-size: 20px; padding: 12px 18px; min-height: 56px; }
+  .set-view { gap: 10px; }
+  .set-main { gap: 18px; }
+  .status { font-size: 19px; min-height: 26px; }
+  .target { font-size: 22px; }
+  .weight-value { font-size: 22px; min-width: 100px; }
+}
+
+/* iPad mini width: a narrower exercise list leaves the buttons one row */
+@media (max-width: 1100px) {
+  .workout-body { grid-template-columns: 230px 1fr; }
+}
+
+/* portrait iPad and smaller */
+@media (max-width: 900px) {
+  .workout-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .rail { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+  .rail-item { min-width: 190px; }
+  .set-main { grid-template-columns: 1fr; grid-template-rows: minmax(0, 32vh) auto; }
+  .bar { padding: 14px 16px; }
+  .stage { padding: 16px; }
+}
